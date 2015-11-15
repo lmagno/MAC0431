@@ -3,7 +3,7 @@ SOURCE = $(NAME).f95
 OUTPUT = $(NAME).out
 
 MODDIR = ./Módulos/
-MODULES = Entrada
+MODULES = Entrada Saida
 MODFILES = $(addprefix $(MODDIR), $(MODULES:=.f95))
 
 FFLAGS = -Wall -fdefault-real-8 -g3 -Wimplicit-interface # Usar double como default
