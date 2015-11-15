@@ -41,20 +41,23 @@ program Ondas
     ry = in%larg/in%L
     timestep = in%T/in%Niter
     do n = 1, in%Niter
+        mapa(:, :) = 0.0
         do k = 1, gotas
             t = n*timestep - gt(k)
             if (t > sqrt(real(in%alt*in%alt + in%larg*in%larg))/in%v) then
-                continue
+                cycle
             end if
+
             do j = 1, in%L
                 do i = 1, in%H
-                    ht = 0.0
-
                     dx  = i*rx - gx(k)
                     dy  = j*ry - gy(k)
                     rho = sqrt(dx*dx + dy*dy)
 
-                    mapa(i, j) = mapa(i, j) + h(rho, t, in%v)
+                    ht = h(rho, t, in%v)
+                    if (ht > in%eps) then
+                        mapa(i, j) = mapa(i, j) + h(rho, t, in%v)
+                    end if
                 end do
             end do
         end do
