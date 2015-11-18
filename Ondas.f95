@@ -7,7 +7,7 @@ contains
 
         real :: d
         d = rho - v*t
-        height = d*exp(-d*d)*exp(-t/10)
+        height = d*exp(-d*d-(t/10))
     end function height
 end module Altura
 
