@@ -1,7 +1,6 @@
 program Ondas
     use Entrada, only: Input, load
     use Saida,   only: save
-    use Altura,  only: height
     implicit none
 
     type(Input) :: in
@@ -35,7 +34,6 @@ program Ondas
     P     = in%P
     s     = in%s
 
-    ! Define a semente do gerador de números aleatórios
     call random_seed(s)
 
     ! Aloca os arrays necessários
@@ -52,8 +50,11 @@ program Ondas
 
     ! Passo
     timestep = T/Niter
+    
+    ! Inicializa mapa
+    mapa(:, :) = 0.0
+
     do n = 1, Niter
-        mapa(:, :) = 0.0
         time = n*timestep
         do k = 1, gotas
 
@@ -68,12 +69,17 @@ program Ondas
                 do i = 1, H
                     dx2  = (i*rx - gx(k))**2
                     dr = sqrt(dx2 + dy2)
-
-                    ! Só considera contribuições não desprezíveis
+                    
+                    ! Calcula altura
                     d = dr - v*dt
                     ht = d*exp(-d*d-(dt/10))
-                    if (abs(ht) > eps) then
-                        mapa(i, j) = mapa(i, j) + ht
+                    
+                    ! Escreve altura no mapa na última iteração
+                    if (n == Niter) then
+                        ! Só considera contribuições não desprezíveis
+                        if (abs(ht) > eps) then
+                            mapa(i, j) = mapa(i, j) + ht
+                        end if
                     end if
                 end do
             end do
