@@ -7,7 +7,7 @@ contains
 
         real :: d
         d = rho - v*t
-        height = d*exp(-d*d)*exp(-t/10)
+        height = d*exp(-d*d-(t/10))
     end function height
 end module Altura
 
@@ -21,11 +21,11 @@ program Ondas
     real, allocatable :: mapa(:, :)
     real, allocatable :: gx(:), gy(:), gt(:)
     integer :: i, j, n, k, gotas
-    real :: dx, dy, dr, dt
-    real :: rx, ry, timestep, ht
+    real :: dx2, dy2, dr, dt
+    real :: rx, ry, timestep, time, ht
 
     ! Parâmetros de entrada
-    integer :: larg, alt ! Largura e altura do lago
+    real    :: larg, alt ! Largura e altura do lago
     integer :: L, H      ! Largura e altura da matriz
     real    :: T         ! Tempo (virtual) de simulação
     real    :: v         ! Velocidade de propagação da onda
@@ -37,8 +37,8 @@ program Ondas
     ! Carrega os parâmetros de entrada
     in = load("entrada")
 
-    larg  = in%larg
-    alt   = in%alt
+    larg  = real(in%larg)
+    alt   = real(in%alt)
     L     = in%L
     H     = in%H
     T     = in%T
@@ -67,19 +67,20 @@ program Ondas
     timestep = T/Niter
     do n = 1, Niter
         mapa(:, :) = 0.0
+        time = n*timestep
         do k = 1, gotas
 
             ! Só considera gotas cuja onda ainda está no lago
-            dt = n*timestep - gt(k)
-            if (dt > sqrt(real(alt*alt + larg*larg))/v) then
+            dt = time - gt(k)
+            if (dt > sqrt(alt*alt + larg*larg)/v) then
                 cycle
             end if
 
             do j = 1, L
+                dy2 = (j*ry - gy(k))**2
                 do i = 1, H
-                    dx  = i*rx - gx(k)
-                    dy  = j*ry - gy(k)
-                    dr = sqrt(dx*dx + dy*dy)
+                    dx2  = (i*rx - gx(k))**2
+                    dr = sqrt(dx2 + dy2)
 
                     ! Só considera contribuições não desprezíveis
                     ht = height(dr, dt, v)
@@ -95,7 +96,7 @@ program Ondas
             gotas = gotas + 1
             gx(gotas) = rand()*alt
             gy(gotas) = rand()*larg
-            gt(gotas) = n*timestep
+            gt(gotas) = time
         end if
     end do
 
