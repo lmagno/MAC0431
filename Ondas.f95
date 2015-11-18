@@ -25,7 +25,7 @@ program Ondas
     real :: rx, ry, timestep, ht
 
     ! Parâmetros de entrada
-    integer :: larg, alt ! Largura e altura do lago
+    real    :: larg, alt ! Largura e altura do lago
     integer :: L, H      ! Largura e altura da matriz
     real    :: T         ! Tempo (virtual) de simulação
     real    :: v         ! Velocidade de propagação da onda
@@ -37,8 +37,8 @@ program Ondas
     ! Carrega os parâmetros de entrada
     in = load("entrada")
 
-    larg  = in%larg
-    alt   = in%alt
+    larg  = real(in%larg)
+    alt   = real(in%alt)
     L     = in%L
     H     = in%H
     T     = in%T
@@ -71,7 +71,7 @@ program Ondas
 
             ! Só considera gotas cuja onda ainda está no lago
             dt = n*timestep - gt(k)
-            if (dt > sqrt(real(alt*alt + larg*larg))/v) then
+            if (dt > sqrt(alt*alt + larg*larg)/v) then
                 cycle
             end if
 
