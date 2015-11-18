@@ -1,16 +1,3 @@
-module Altura
-    implicit none
-contains
-    function height(rho, t, v)
-        real             :: height
-        real, intent(in) :: rho, t, v
-
-        real :: d
-        d = rho - v*t
-        height = d*exp(-d*d-(t/10))
-    end function height
-end module Altura
-
 program Ondas
     use Entrada, only: Input, load
     use Saida,   only: save
@@ -21,7 +8,7 @@ program Ondas
     real, allocatable :: mapa(:, :)
     real, allocatable :: gx(:), gy(:), gt(:)
     integer :: i, j, n, k, gotas
-    real :: dx2, dy2, dr, dt
+    real :: dx2, dy2, dr, dt, d
     real :: rx, ry, timestep, time, ht
 
     ! Parâmetros de entrada
@@ -83,7 +70,8 @@ program Ondas
                     dr = sqrt(dx2 + dy2)
 
                     ! Só considera contribuições não desprezíveis
-                    ht = height(dr, dt, v)
+                    d = dr - v*dt
+                    ht = d*exp(-d*d-(dt/10))
                     if (abs(ht) > eps) then
                         mapa(i, j) = mapa(i, j) + ht
                     end if
