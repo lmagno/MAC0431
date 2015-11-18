@@ -42,26 +42,41 @@ program Ondas
     allocate(gy(Niter))
     allocate(gt(Niter))
 
-    gotas = 0
 
     ! Razões entre as dimensões do lago e as da matriz
     rx = alt/H
     ry = larg/L
 
-    ! Passo
+    ! Tempo por iteração
     timestep = T/Niter
     
     ! Inicializa mapa
     mapa(:, :) = 0.0
+    
+    ! Gera gotas
+    gotas = 0
+    do n = 1, Niter
+        ! Cria gota com probabilidade P
+        if (rand() < P/100) then
+            gotas = gotas + 1
+            gx(gotas) = rand()*alt
+            gy(gotas) = rand()*larg
+            gt(gotas) = n*timestep 
+        end if
+    end do
 
     do n = 1, Niter
         time = n*timestep
         do k = 1, gotas
+            ! Só considera gotas que já ocorreram
+            if (gt(k) >= time) then
+                exit ! vai para a proxima iteração
+            end if
 
             ! Só considera gotas cuja onda ainda está no lago
             dt = time - gt(k)
             if (dt > sqrt(alt*alt + larg*larg)/v) then
-                cycle
+                cycle ! vai para a próxima gota
             end if
 
             do j = 1, L
@@ -84,20 +99,7 @@ program Ondas
                 end do
             end do
         end do
-
-        ! Sorteia gotas
-        if (rand() < P/100) then
-            gotas = gotas + 1
-            gx(gotas) = rand()*alt
-            gy(gotas) = rand()*larg
-            gt(gotas) = time
-        end if
     end do
 
-
     call save(mapa)
-    deallocate(mapa)
-    deallocate(gx)
-    deallocate(gy)
-    deallocate(gt)
 end program Ondas
