@@ -1,7 +1,6 @@
 program Ondas
     use Entrada, only: Input, load
     use Saida,   only: save
-    use Altura,  only: height
     implicit none
 
     type(Input) :: in
@@ -45,41 +44,18 @@ program Ondas
     allocate(gt(Niter))
 
     gotas = 0
+    mapa(:, :) = 0.0
 
     ! Razões entre as dimensões do lago e as da matriz
     rx = alt/H
     ry = larg/L
 
-    ! Passo
+    ! Tempo por iteração
     timestep = T/Niter
+
+    ! Gera as gotas
     do n = 1, Niter
-        mapa(:, :) = 0.0
         time = n*timestep
-        do k = 1, gotas
-
-            ! Só considera gotas cuja onda ainda está no lago
-            dt = time - gt(k)
-            if (dt > sqrt(alt*alt + larg*larg)/v) then
-                cycle
-            end if
-
-            do j = 1, L
-                dy2 = (j*ry - gy(k))**2
-                do i = 1, H
-                    dx2  = (i*rx - gx(k))**2
-                    dr = sqrt(dx2 + dy2)
-
-                    ! Só considera contribuições não desprezíveis
-                    d = dr - v*dt
-                    ht = d*exp(-d*d-(dt/10))
-                    if (abs(ht) > eps) then
-                        mapa(i, j) = mapa(i, j) + ht
-                    end if
-                end do
-            end do
-        end do
-
-        ! Sorteia gotas
         if (rand() < P/100) then
             gotas = gotas + 1
             gx(gotas) = rand()*alt
@@ -87,7 +63,30 @@ program Ondas
             gt(gotas) = time
         end if
     end do
+    
+    ! Desenha as ondas na última iteração
+    do k = 1, gotas
+        ! Só considera gotas cuja onda ainda está no lago
+        dt = time - gt(k)
+        if (dt > sqrt(alt*alt + larg*larg)/v) then
+            cycle
+        end if
 
+        do j = 1, L
+            dy2 = (j*ry - gy(k))**2
+            do i = 1, H
+                dx2  = (i*rx - gx(k))**2
+                dr = sqrt(dx2 + dy2)
+
+                ! Só considera contribuições não desprezíveis
+                d = dr - v*dt
+                ht = d*exp(-d*d-(dt/10))
+                if (abs(ht) > eps) then
+                    mapa(i, j) = mapa(i, j) + ht
+                end if
+            end do
+        end do
+    end do
 
     call save(mapa)
     deallocate(mapa)
