@@ -1,7 +1,6 @@
 program Ondas
     use Entrada, only: Input, load
     use Saida,   only: save
-    use Altura,  only: height
     implicit none
 
     type(Input) :: in
