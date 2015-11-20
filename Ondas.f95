@@ -1,7 +1,6 @@
 program Ondas
     use Entrada, only: Input, load
     use Saida,   only: save
-    use Altura,  only: height
     implicit none
 
     type(Input) :: in
@@ -45,6 +44,7 @@ program Ondas
     allocate(gt(Niter))
 
     gotas = 0
+    mapa(:, :) = 0.0
 
     ! Razões entre as dimensões do lago e as da matriz
     rx = alt/H
@@ -53,7 +53,6 @@ program Ondas
     ! Passo
     timestep = T/Niter
     do n = 1, Niter
-        mapa(:, :) = 0.0
         time = n*timestep
         do k = 1, gotas
 
@@ -62,7 +61,7 @@ program Ondas
             if (dt > sqrt(alt*alt + larg*larg)/v) then
                 cycle
             end if
-
+            
             do j = 1, L
                 dy2 = (j*ry - gy(k))**2
                 do i = 1, H
@@ -72,8 +71,10 @@ program Ondas
                     ! Só considera contribuições não desprezíveis
                     d = dr - v*dt
                     ht = d*exp(-d*d-(dt/10))
-                    if (abs(ht) > eps) then
-                        mapa(i, j) = mapa(i, j) + ht
+                    if (n == Niter) then
+                        if (abs(ht) > eps) then
+                            mapa(i, j) = mapa(i, j) + ht
+                        end if
                     end if
                 end do
             end do
