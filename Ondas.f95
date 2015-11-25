@@ -4,6 +4,7 @@ program Ondas
     implicit none
 
     type(Input) :: in
+    character(len=80) :: filename
     real, allocatable :: mapa(:, :)
     real, allocatable :: gx(:), gy(:), gt(:)
     integer :: i, j, n, k, gotas
@@ -21,7 +22,8 @@ program Ondas
     integer :: s         ! Semente para o gerador aleatório
 
     ! Carrega os parâmetros de entrada
-    in = load("entrada")
+    call get_command_argument(1, filename)
+    in = load(filename)
 
     larg  = real(in%larg)
     alt   = real(in%alt)
