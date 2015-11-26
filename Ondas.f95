@@ -60,9 +60,9 @@ program Ondas
 
             ! Só considera gotas cuja onda ainda está no lago
             dt = time - gt(k)
-            ! if (dt > sqrt(alt*alt + larg*larg)/v) then
-            !     cycle
-            ! end if
+            if (dt > sqrt(alt*alt + larg*larg)/v) then
+                cycle
+            end if
 
             !$omp parallel do default(shared) private(i,dx2,dy2,dr,d,ht)
             do j = 1, L
