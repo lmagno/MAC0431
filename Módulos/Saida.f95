@@ -1,4 +1,5 @@
 module Saida
+    use Entrada, only: Input
     implicit none
 
 contains
@@ -55,4 +56,38 @@ contains
 
         close(2)
     end subroutine save
+
+    subroutine save_stats(S, Q, in)
+        real,        intent(inout) :: S(:, :)
+        real,        intent(in)    :: Q(:, :)
+        type(Input), intent(in)    :: in
+
+        integer :: L, H, Niter
+        real    :: larg, alt
+        integer :: i, j
+        real    :: Sm, Qm, std
+        real    :: x, y
+
+        larg  = real(in%larg)
+        alt   = real(in%alt)
+        L     = in%L
+        H     = in%H
+        Niter = in%Niter
+
+        open(3, file="saida.txt", status = 'replace')
+        do j = 1, in%L
+            do i = 1, in%H
+                x = (larg/L)*j
+                y = (alt/H)*(H - i)
+
+                Sm = S(i, j)/Niter
+                Qm = Q(i, j)/Niter
+
+                std = sqrt(Qm - Sm*Sm)
+                write(3, '(f12.7, 1x, f12.7, 1x, f12.7, 1x, f12.7)') x, y, Sm, std
+            end do
+        end do
+
+        close(3)
+    end subroutine save_stats
 end module Saida

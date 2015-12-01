@@ -1,11 +1,11 @@
 program Ondas
     use Entrada, only: Input, load
-    use Saida,   only: save
+    use Saida,   only: save, save_stats
     implicit none
 
     type(Input) :: in
     character(len=80) :: filename
-    real, allocatable :: mapa(:, :)
+    real, allocatable :: mapa(:, :), S(:, :), Q(:, :)
     real, allocatable :: gx(:), gy(:), gt(:)
     integer :: i, j, n, k, gotas
     real :: dx2, dy2, dr, dt, d
@@ -19,7 +19,7 @@ program Ondas
     real    :: eps       ! Limiar de altura
     integer :: Niter     ! Número de iterações
     real    :: P         ! Propabilidade de surgimento de uma gota
-    integer :: s         ! Semente para o gerador aleatório
+    integer :: seed      ! Semente para o gerador aleatório
 
     ! Carrega os parâmetros de entrada
     call get_command_argument(1, filename)
@@ -34,13 +34,15 @@ program Ondas
     eps   = in%eps
     Niter = in%Niter
     P     = in%P
-    s     = in%s
+    seed  = in%s
 
     ! Define a semente do gerador de números aleatórios
-    call random_seed(s)
+    call random_seed(seed)
 
     ! Aloca os arrays necessários
     allocate(mapa(H, L))
+    allocate(S(H, L))
+    allocate(Q(H, L))
     allocate(gx(Niter))
     allocate(gy(Niter))
     allocate(gt(Niter))
@@ -50,6 +52,9 @@ program Ondas
     ! Razões entre as dimensões do lago e as da matriz
     rx = alt/H
     ry = larg/L
+
+    S(:, :) = 0.0
+    Q(:, :) = 0.0
 
     ! Passo
     timestep = T/Niter
@@ -76,6 +81,11 @@ program Ondas
                     ht = d*exp(-d*d-(dt/10))
                     if (abs(ht) > eps) then
                         mapa(i, j) = mapa(i, j) + ht
+
+                        ! Mantém a soma das alturas e dos seus quadrados
+                        ! para o cálculo da média e do desvio padrão depois
+                        S(i, j) = S(i, j) + ht
+                        Q(i, j) = Q(i, j) + ht*ht
                     end if
                 end do
             end do
@@ -93,7 +103,10 @@ program Ondas
 
 
     call save(mapa)
+    call save_stats(S, Q, in)
     deallocate(mapa)
+    deallocate(S)
+    deallocate(Q)
     deallocate(gx)
     deallocate(gy)
     deallocate(gt)
