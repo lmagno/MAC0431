@@ -35,3 +35,6 @@ do
     done
     printf "\n"
 done
+
+# Dar checkout para master
+git checkout master --quiet
