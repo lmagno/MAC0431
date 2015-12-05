@@ -6,7 +6,7 @@ MODDIR = ./Módulos/
 MODULES = Entrada Saida
 MODFILES = $(addprefix $(MODDIR), $(MODULES:=.f95))
 
-FFLAGS = -Wall -fdefault-real-8 -g3 -Wimplicit-interface -fopenmp # Usar double como default
+FFLAGS = -Wall -fdefault-real-8 -O3 -Wimplicit-interface -fopenmp # Usar double como default
 
 .PHONY: all clean
 
